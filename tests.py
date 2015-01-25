@@ -25,10 +25,10 @@ class TestAnimeShow(ut.TestCase):
         self.episode = 1
         self.SiteSuccess = at.AnimeShow('shigatsu wa kimi no uso', self.episode)
         self.SiteFail = at.AnimeShow('econometrics 101', self.episode)
+        at.start_browser()
 
     def tearDown(self):
-        self.SiteSuccess.driver.quit()
-        self.SiteFail.driver.quit()
+        at.stop_browser()
 
     def test_AnimeShow_get_anime_url_success(self):
         self.assertEqual(self.SiteSuccess.get_anime(),
@@ -47,3 +47,7 @@ class TestAnimeShow(ut.TestCase):
     def test_AnimeShow_get_episode_url_fail(self):
         with self.assertRaises(SystemExit):
             self.SiteFail.get_episode()
+
+
+if __name__ == '__main__':
+    ut.main()

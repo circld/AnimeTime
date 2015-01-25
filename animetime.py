@@ -8,6 +8,20 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from re import search
 
+driver = None
+
+
+def start_browser():
+    global driver
+    driver = webdriver.Firefox()
+    driver.implicitly_wait(5)
+    return driver
+
+
+def stop_browser():
+    global driver
+    driver.quit()
+
 
 def create_parser():
     # TODO: add program description & help text
@@ -21,13 +35,12 @@ class Site(object):
     """
     general class specific website classes will subclass
     """
-    driver = webdriver.Firefox()  # singleton
 
     def __init__(self, anime, episode):
         self.anime = anime.title()
         self.episode = int(episode)
         self.urls = {'anime': None, 'episode': None, 'video': None}
-        self.driver.implicitly_wait(5)
+
 
     def get_anime(self):
         pass
@@ -42,16 +55,16 @@ class Site(object):
 class AnimeShow(Site):
 
     def get_anime(self):
-        self.driver.get('http://www.animeshow.tv')
-        search_box = self.driver.find_element_by_class_name('search')
+        driver.get('http://www.animeshow.tv')
+        search_box = driver.find_element_by_class_name('search')
         search_box.send_keys(self.anime)
         sleep(1)
         try:
-            results = self.driver.find_element_by_css_selector(
+            results = driver.find_element_by_css_selector(
                 "div[class='menu-search-result'] > ol > li > a"
             )
             results.click()
-            self.urls['anime'] = self.driver.current_url
+            self.urls['anime'] = driver.current_url
             return self.urls['anime']
         except NoSuchElementException:
             raise SystemExit(
@@ -62,11 +75,11 @@ class AnimeShow(Site):
     def get_episode(self):
         if self.urls['anime'] is None:
             self.get_anime()
-        if self.driver.current_url != self.urls['anime']:
-            self.driver.get(self.urls['anime'])
+        if driver.current_url != self.urls['anime']:
+            driver.get(self.urls['anime'])
 
         loc_id = 'episode-list-entry'
-        episodes = self.driver.find_elements_by_css_selector(
+        episodes = driver.find_elements_by_css_selector(
             "table[id='{0}-tbl'] a".format(loc_id)
         )
         links = [
@@ -87,8 +100,6 @@ class AnimeShow(Site):
 
 class Anime(object):
 
-    driver = webdriver.Firefox()
-
     def __init__(self, name):
         self.name = name
 
@@ -97,6 +108,9 @@ class Anime(object):
 
 
 def main():
+
+    start_browser()
+
     parser = create_parser()
     args = parser.parse_args()
 
