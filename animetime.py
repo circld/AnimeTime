@@ -90,12 +90,50 @@ class AnimeShow(Site):
         try:
             self.urls['episode'] = links[0][1]
             return self.urls['episode']
-        except IndexError:
+        except (IndexError, TypeError):
             raise SystemExit(
                 '{0}: Could not find {1} episode {2} URL.'.format(
                     self.__class__, self.anime, self.episode
                 )
             )
+
+    def get_video(self, direct_link=None):
+        if not direct_link:
+            if self.urls['episode'] is None:
+                self.get_episode()
+            if driver.current_url != self.urls['episode']:
+                driver.get(self.urls['episode'])
+
+        mirrors = driver.find_elements_by_css_selector(
+            "div[id='episode-mirrors'] > ul a"
+        )
+        hd_url = None
+
+        try:
+            hd_url = [a.get_attribute('href')
+                            for a in mirrors
+                            if search(' HD$', a.text)][0]
+        except (IndexError, TypeError, NameError):
+            pass
+
+        if direct_link is None and hd_url is not None:
+            driver.get(hd_url)
+            return self.get_video(hd_url)
+        else:
+            try:
+                embed_vid = driver.find_element_by_css_selector(
+                    "div[id='embbed-video'] > IFRAME"
+                )
+                self.urls['video'] = embed_vid.get_attribute('SRC')
+
+                driver.get(self.urls['video'])
+                return self.urls['video']
+            except:
+                raise SystemExit(
+                    '{0}: Could not find {1} episode {2} video URL {3}.'.format(
+                        self.__class__, self.anime, self.episode, direct_link
+                    )
+                )
 
 
 class Anime(object):
@@ -104,7 +142,7 @@ class Anime(object):
         self.name = name
 
     def watch(self, episode):
-        pass
+        AnimeShow(self.name, episode).get_video()
 
 
 def main():

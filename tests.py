@@ -39,6 +39,7 @@ class TestAnimeShow(ut.TestCase):
             self.SiteFail.get_anime()
 
     def test_AnimeShow_get_episode_url_success(self):
+        self.SiteSuccess.urls['anime'] = 'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso/'
         self.assertEqual(
             self.SiteSuccess.get_episode(),
             'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso-episode-1/'
@@ -47,6 +48,14 @@ class TestAnimeShow(ut.TestCase):
     def test_AnimeShow_get_episode_url_fail(self):
         with self.assertRaises(SystemExit):
             self.SiteFail.get_episode()
+
+    def test_AnimeShow_get_video_url_success(self):
+        self.SiteSuccess.urls['episode'] = 'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso-episode-1/'
+        self.assertIsNotNone(self.SiteSuccess.get_video())
+
+    def test_AnimeShow_get_video_url_fail(self):
+        with self.assertRaises(SystemExit):
+            self.SiteFail.get_video()
 
 
 if __name__ == '__main__':
