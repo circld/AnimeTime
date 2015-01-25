@@ -4,16 +4,17 @@
 import argparse as ap
 from time import sleep
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from re import search
 
 driver = None
-
+profile = webdriver.FirefoxProfile(
+    r'C:\Users\Paul\AppData\Roaming\Mozilla\Firefox\Profiles\ny31giej.default'
+)
 
 def start_browser():
     global driver
-    driver = webdriver.Firefox()
+    driver = webdriver.Firefox(profile)
     driver.implicitly_wait(5)
     return driver
 
@@ -154,6 +155,8 @@ def main():
 
     this_anime = Anime(args.name)
     this_anime.watch(args.episode)
+
+    stop_browser()
 
 
 if __name__ == '__main__':
