@@ -1,6 +1,8 @@
 # TODO: minimize FF windows (if sticking with selenium)
 # http://stackoverflow.com/questions/2791489/how-do-i-take-out-the-focus-or-minimize-a-window-with-python
 
+from sys import argv
+from os.path import dirname, join
 import argparse as ap
 from time import sleep
 from selenium import webdriver
@@ -12,9 +14,10 @@ from inspect import isclass
 
 driver = None
 profile_path = None
+script_location = dirname(argv[0])
 
 # load Firefox default profile into memory
-with open('./profile_path.txt', 'r') as pp:
+with open(join(script_location, 'profile_path.txt'), 'r') as pp:
     profile_path = pp.readlines()[0].strip()
     pp.close()
 
