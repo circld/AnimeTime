@@ -26,6 +26,16 @@ class AnimeTimeFunctionality(ut.TestCase):
 
         # how to test if video loaded correctly, esp if page source not available?
 
+    def test_command_line_loads_episode_only_on_kiss(self):
+        # User decides to finish watching the series Eureka Seven,
+        # which is not available on all sites. She types:
+        #   >> python animetime.py "eureka seven" 40
+        args = self.parser.parse_args(['eureka seven', '40'])
+        eureka7 = at.Anime(args.name)
+        eureka7.watch(args.episode)
+
+        self.assertNotEqual(at.driver.current_url, 'about:blank',
+                            "No URL passed to browser.")
         self.fail('What about if not on AnimeShow? What about info/rating?')
 
 

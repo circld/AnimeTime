@@ -7,13 +7,15 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from re import search
 
+
 driver = None
-profile = webdriver.FirefoxProfile(
-    r'C:\Users\Paul\AppData\Roaming\Mozilla\Firefox\Profiles\ny31giej.default'
-)
+# TODO: move default profile to config file in project directory (add to .gitignore)
+profile_path = r'C:\Users\Paul\AppData\Roaming\Mozilla\Firefox\Profiles\ny31giej.default'
+
 
 def start_browser():
     global driver
+    profile = webdriver.FirefoxProfile(profile_path)
     driver = webdriver.Firefox(profile)
     driver.implicitly_wait(5)
     return driver
@@ -143,6 +145,15 @@ class Anime(object):
         self.name = name
 
     def watch(self, episode):
+        # grab all Site subclasses
+        # from inspect import isclass
+        # sources = [j for i,j in g.items() if isclass(j) and i != 'Site' and issubclass(j, Site)]
+        # for source in sources:
+        #   try:
+        #       source(self.name, episode).get_video()
+        #       break
+        #   except:
+        #       pass
         AnimeShow(self.name, episode).get_video()
 
 
@@ -155,8 +166,6 @@ def main():
 
     this_anime = Anime(args.name)
     this_anime.watch(args.episode)
-
-    stop_browser()
 
 
 if __name__ == '__main__':
