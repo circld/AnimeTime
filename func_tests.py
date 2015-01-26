@@ -39,7 +39,7 @@ class AnimeTimeFunctionality(ut.TestCase):
                             "No URL passed to browser.")
 
     def test_still_to_implement(self):
-        self.fail('What about info/rating?')
+        self.fail('What about anime movies!? What about info/rating?')
 
 
 if __name__ == '__main__':

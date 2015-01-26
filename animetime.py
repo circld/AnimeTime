@@ -33,10 +33,22 @@ def stop_browser():
 
 
 def create_parser():
-    # TODO: add program description & help text
-    parser = ap.ArgumentParser()
-    parser.add_argument('name')
-    parser.add_argument('episode')
+    parser = ap.ArgumentParser(
+        description=
+        """
+        Watch anime from the command line.\n\n
+        Example usage:\n
+        >>> python animetime.py 'juuni kokuki' 2
+        """
+    )
+    parser.add_argument(
+        'name', type=str,
+        help='Name of anime (enclose multiple words with quotes)'
+    )
+    parser.add_argument(
+        'episode', type=int,
+        help='Episode number to watch'
+    )
     return parser
 
 
