@@ -177,7 +177,7 @@ class KissAnime(Site):
             if len([r for r in results]) > 1:
                 search_box.send_keys(' (sub)')
                 sleep(1)
-                results = driver.find_element_by_css_selector(
+                results = driver.find_elements_by_css_selector(
                     "div[id='result_box'] > a"
                 )
             results[0].click()
