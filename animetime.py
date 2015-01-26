@@ -180,7 +180,7 @@ class KissAnime(Site):
                 results = driver.find_element_by_css_selector(
                     "div[id='result_box'] > a"
                 )
-            results.click()
+            results[0].click()
             self.urls['anime'] = driver.current_url
             return self.urls['anime']
         except (NoSuchElementException, AttributeError):
@@ -200,7 +200,8 @@ class KissAnime(Site):
         )
         links = [
             (a.text, a.get_attribute('href'))
-            for a in episodes if search('40$', a.text)
+            for a in episodes
+            if search('(00){0,2}%d$' % self.episode, a.text)
         ]
         try:
             self.urls['episode'] = links[0][1]
@@ -231,8 +232,8 @@ class KissAnime(Site):
             return self.urls['video']
         except:
             raise SystemExit(
-                '{0}: Could not find {1} episode {2} video URL {3}.'.format(
-                    self.__class__, self.anime, self.episode, direct_link
+                '{0}: Could not find {1} episode {2} video URL.'.format(
+                    self.__class__, self.anime, self.episode
                 )
             )
 
