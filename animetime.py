@@ -1,16 +1,22 @@
-# TODO: minimize FF windows (if stick with selenium)
+# TODO: minimize FF windows (if sticking with selenium)
 # http://stackoverflow.com/questions/2791489/how-do-i-take-out-the-focus-or-minimize-a-window-with-python
 
 import argparse as ap
 from time import sleep
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from re import search
+from re import search, sub
+from urllib2 import unquote
+from inspect import isclass
 
 
 driver = None
-# TODO: move default profile to config file in project directory (add to .gitignore)
-profile_path = r'C:\Users\Paul\AppData\Roaming\Mozilla\Firefox\Profiles\ny31giej.default'
+profile_path = None
+
+# load Firefox default profile into memory
+with open('./profile_path.txt', 'r') as pp:
+    profile_path = pp.readlines()[0].strip()
+    pp.close()
 
 
 def start_browser():
@@ -119,6 +125,7 @@ class AnimeShow(Site):
         except (IndexError, TypeError, NameError):
             pass
 
+        # recursive get_video call to grab HD vid link
         if direct_link is None and hd_url is not None:
             driver.get(hd_url)
             return self.get_video(hd_url)
@@ -139,6 +146,81 @@ class AnimeShow(Site):
                 )
 
 
+class KissAnime(Site):
+
+    def get_anime(self):
+        driver.get('http://www.kissanime.com')
+        search_box = driver.find_element_by_css_selector(
+            "input[id='keyword']"
+        )
+        search_box.send_keys(self.anime)
+        sleep(1)
+        try:
+            results = driver.find_elements_by_css_selector(
+                "div[id='result_box'] > a"
+            )
+            if len([r for r in results]) > 1:
+                search_box.send_keys(' (sub)')
+                sleep(1)
+                results = driver.find_element_by_css_selector(
+                    "div[id='result_box'] > a"
+                )
+            results.click()
+            self.urls['anime'] = driver.current_url
+            return self.urls['anime']
+        except (NoSuchElementException, AttributeError):
+            raise SystemExit(
+                '{0}: Could not find {1} URL.'.format(self.__class__,
+                                                      self.anime)
+            )
+
+    def get_episode(self):
+        if self.urls['anime'] is None:
+            self.get_anime()
+        if driver.current_url != self.urls['anime']:
+            driver.get(self.urls['anime'])
+
+        episodes = driver.find_elements_by_css_selector(
+            "table[class='listing'] a"
+        )
+        links = [
+            (a.text, a.get_attribute('href'))
+            for a in episodes if search('40$', a.text)
+        ]
+        try:
+            self.urls['episode'] = links[0][1]
+            return self.urls['episode']
+        except (IndexError, TypeError):
+            raise SystemExit(
+                '{0}: Could not find {1} episode {2} URL.'.format(
+                    self.__class__, self.anime, self.episode
+                )
+            )
+
+    def get_video(self):
+        if self.urls['episode'] is None:
+            self.get_episode()
+        if driver.current_url != self.urls['episode']:
+            driver.get(self.urls['episode'])
+
+        try:
+            raw_link = search(
+                "fmt_stream_map.*?';",
+                driver.page_source
+            ).group()
+            raw_link = sub('fmt_stream.*?(?=https)', '', unquote(raw_link))
+            link = sub('(?<=lh1).*[=]lh1', '', raw_link)
+
+            self.urls['video'] = link
+            driver.get(self.urls['video'])
+            return self.urls['video']
+        except:
+            raise SystemExit(
+                '{0}: Could not find {1} episode {2} video URL {3}.'.format(
+                    self.__class__, self.anime, self.episode, direct_link
+                )
+            )
+
 class Anime(object):
 
     def __init__(self, name):
@@ -146,15 +228,18 @@ class Anime(object):
 
     def watch(self, episode):
         # grab all Site subclasses
-        # from inspect import isclass
-        # sources = [j for i,j in g.items() if isclass(j) and i != 'Site' and issubclass(j, Site)]
-        # for source in sources:
-        #   try:
-        #       source(self.name, episode).get_video()
-        #       break
-        #   except:
-        #       pass
-        AnimeShow(self.name, episode).get_video()
+        sources = [
+            site_class for name, site_class in globals().items()
+            if isclass(site_class) and name != 'Site'
+            and issubclass(site_class, Site)
+        ]
+        # try to load video from the first site that works
+        for site in sources:
+            try:
+                site(self.name, episode).get_video()
+                break
+            except SystemExit:
+                pass
 
 
 def main():

@@ -18,44 +18,70 @@ class TestArgumentParsing(ut.TestCase):
             self.parser.parse_args([])
 
 
-# TODO: once AnimeShow class & test case working, generalize test structure & subclass
-class TestAnimeShow(ut.TestCase):
+# Test skeleton for all site-specific classes
+class SiteTestBase(object):
+
+    def setUp(self):
+        self.episode = None
+        self.SiteSuccess = None
+        self.SiteFail = None
+        self.success_urls = dict()
+
+    def tearDown(self):
+        at.stop_browser()
+
+    def test_get_anime_url_success(self):
+        self.assertEqual(self.SiteSuccess.get_anime(),
+                         self.success_urls.get('anime'))
+
+    def test_get_anime_url_fail(self):
+        with self.assertRaises(SystemExit):
+            self.SiteFail.get_anime()
+
+    def test_get_episode_url_success(self):
+        self.SiteSuccess.urls['anime'] = self.success_urls.get('anime')
+        self.assertEqual(
+            self.SiteSuccess.get_episode(),
+            self.success_urls.get('episode')
+        )
+
+    def test_get_episode_url_fail(self):
+        with self.assertRaises(SystemExit):
+            self.SiteFail.get_episode()
+
+    def test_get_video_url_success(self):
+        self.SiteSuccess.urls['episode'] = self.success_urls.get('episode')
+        self.assertIsNotNone(self.SiteSuccess.get_video())
+
+    def test_get_video_url_fail(self):
+        with self.assertRaises(SystemExit):
+            self.SiteFail.get_video()
+
+
+class TestAnimeShow(SiteTestBase, ut.TestCase):
 
     def setUp(self):
         self.episode = 1
         self.SiteSuccess = at.AnimeShow('shigatsu wa kimi no uso', self.episode)
         self.SiteFail = at.AnimeShow('econometrics 101', self.episode)
+        self.success_urls = {
+            'anime': 'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso/',
+            'episode': 'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso-episode-1/',
+        }
         at.start_browser()
 
-    def tearDown(self):
-        at.stop_browser()
 
-    def test_AnimeShow_get_anime_url_success(self):
-        self.assertEqual(self.SiteSuccess.get_anime(),
-                         'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso/')
+class TestKissAnime(SiteTestBase, ut.TestCase):
 
-    def test_AnimeShow_get_anime_url_fail(self):
-        with self.assertRaises(SystemExit):
-            self.SiteFail.get_anime()
-
-    def test_AnimeShow_get_episode_url_success(self):
-        self.SiteSuccess.urls['anime'] = 'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso/'
-        self.assertEqual(
-            self.SiteSuccess.get_episode(),
-            'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso-episode-1/'
-        )
-
-    def test_AnimeShow_get_episode_url_fail(self):
-        with self.assertRaises(SystemExit):
-            self.SiteFail.get_episode()
-
-    def test_AnimeShow_get_video_url_success(self):
-        self.SiteSuccess.urls['episode'] = 'http://animeshow.tv/Shigatsu-wa-Kimi-no-Uso-episode-1/'
-        self.assertIsNotNone(self.SiteSuccess.get_video())
-
-    def test_AnimeShow_get_video_url_fail(self):
-        with self.assertRaises(SystemExit):
-            self.SiteFail.get_video()
+    def setUp(self):
+        self.episode = 40
+        self.SiteSuccess = at.KissAnime('eureka seven', self.episode)
+        self.SiteFail = at.KissAnime('econometrics 101', self.episode)
+        self.success_urls = {
+            'anime': 'http://kissanime.com/Anime/Eureka-Seven',
+            'episode': 'http://kissanime.com/Anime/Eureka-Seven/Episode-040?id=5504',
+        }
+        at.start_browser()
 
 
 if __name__ == '__main__':
