@@ -183,7 +183,7 @@ class KissAnime(Site):
             results[0].click()
             self.urls['anime'] = driver.current_url
             return self.urls['anime']
-        except (NoSuchElementException, AttributeError):
+        except (NoSuchElementException, AttributeError, IndexError):
             raise SystemExit(
                 '{0}: Could not find {1} URL.'.format(self.__class__,
                                                       self.anime)
@@ -201,7 +201,7 @@ class KissAnime(Site):
         links = [
             (a.text, a.get_attribute('href'))
             for a in episodes
-            if search('(00){0,2}%d$' % self.episode, a.text)
+            if search('\D(00){0,2}%d$' % self.episode, a.text)
         ]
         try:
             self.urls['episode'] = links[0][1]
