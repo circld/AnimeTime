@@ -11,13 +11,13 @@ class AnimeTimeFunctionality(ut.TestCase):
     def tearDown(self):
         at.stop_browser()
 
+    # TODO: update test so that it actually tests this (program tries kiss first)
     def test_command_line_loads_episode_only_on_animeshow(self):
         # User has some free time and decides she wants to watch some anime.
         # Her friends have said good things about Tokyo Ghoul, so she opens her
         # the console and enters the following command:
         #   >> python animetime.py "tokyo ghoul" 1
         # and it loads the first episode of tokyo ghoul in her browser.
-        # nb. tokyo ghoul *is* on kiss but will not be selected using existing algorithm
         args = self.parser.parse_args(['tokyo ghoul', '1'])
         tokyo_ghoul = at.Anime(args.name)
         tokyo_ghoul.watch(args.episode)

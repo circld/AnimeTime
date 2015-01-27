@@ -175,11 +175,15 @@ class KissAnime(Site):
                 "div[id='result_box'] > a"
             )
             if len([r for r in results]) > 1:
-                search_box.send_keys(' (sub)')
-                sleep(1)
-                results = driver.find_elements_by_css_selector(
-                    "div[id='result_box'] > a"
-                )
+                exact_match = [a for a in results if a.text == self.anime]
+                if len(exact_match) == 1:
+                    results = exact_match
+                else:
+                    search_box.send_keys(' (sub)')
+                    sleep(1)
+                    results = driver.find_elements_by_css_selector(
+                        "div[id='result_box'] > a"
+                    )
             results[0].click()
             self.urls['anime'] = driver.current_url
             return self.urls['anime']
@@ -201,7 +205,7 @@ class KissAnime(Site):
         links = [
             (a.text, a.get_attribute('href'))
             for a in episodes
-            if search('\D(00){0,2}%d$' % self.episode, a.text)
+            if search('\D0{0,2}%d$' % self.episode, a.text)
         ]
         try:
             self.urls['episode'] = links[0][1]
