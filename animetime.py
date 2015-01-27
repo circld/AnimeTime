@@ -176,7 +176,7 @@ class KissAnime(Site):
             )
             if len([r for r in results]) > 1:
                 exact_match = [a for a in results if a.text == self.anime]
-                if len(exact_match) == 1:
+                if len(exact_match) > 0:
                     results = exact_match
                 else:
                     search_box.send_keys(' (sub)')
