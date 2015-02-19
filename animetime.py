@@ -14,7 +14,7 @@ from inspect import isclass
 
 driver = None
 profile_path = None
-script_location = dirname(argv[0])
+script_location = dirname(__file__)  # dirname(argv[0])
 
 # load Firefox default profile into memory
 with open(join(script_location, 'profile_path.txt'), 'r') as pp:
@@ -65,8 +65,7 @@ class Site(object):
         self.episode = int(episode)
         self.urls = {'anime': None, 'episode': None, 'video': None}
 
-
-    def get_anime(self):
+    def get_title(self):
         pass
 
     def get_episode(self):
@@ -78,7 +77,7 @@ class Site(object):
 
 class AnimeShow(Site):
 
-    def get_anime(self):
+    def get_title(self):
         driver.get('http://www.animeshow.tv')
         search_box = driver.find_element_by_class_name('search')
         search_box.send_keys(self.anime)
@@ -98,7 +97,7 @@ class AnimeShow(Site):
 
     def get_episode(self):
         if self.urls['anime'] is None:
-            self.get_anime()
+            self.get_title()
         if driver.current_url != self.urls['anime']:
             driver.get(self.urls['anime'])
 
@@ -163,7 +162,7 @@ class AnimeShow(Site):
 
 class KissAnime(Site):
 
-    def get_anime(self):
+    def get_title(self):
         driver.get('http://www.kissanime.com')
         search_box = driver.find_element_by_css_selector(
             "input[id='keyword']"
@@ -195,7 +194,7 @@ class KissAnime(Site):
 
     def get_episode(self):
         if self.urls['anime'] is None:
-            self.get_anime()
+            self.get_title()
         if driver.current_url != self.urls['anime']:
             driver.get(self.urls['anime'])
 

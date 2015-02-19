@@ -8,7 +8,7 @@ class TestArgumentParsing(ut.TestCase):
         self.parser = at.create_parser()
 
     def test_create_parser_creates_name_and_episode_args(self):
-        args = self.parser.parse_args(['some_name', 'some_episode'])
+        args = self.parser.parse_args(['some_name', '5'])
 
         self.assertIn('name', args)
         self.assertIn('episode', args)
@@ -31,12 +31,12 @@ class SiteTestBase(object):
         at.stop_browser()
 
     def test_get_anime_url_success(self):
-        self.assertEqual(self.SiteSuccess.get_anime(),
+        self.assertEqual(self.SiteSuccess.get_title(),
                          self.success_urls.get('anime'))
 
     def test_get_anime_url_fail(self):
         with self.assertRaises(SystemExit):
-            self.SiteFail.get_anime()
+            self.SiteFail.get_title()
 
     def test_get_episode_url_success(self):
         self.SiteSuccess.urls['anime'] = self.success_urls.get('anime')
